@@ -11,6 +11,7 @@
     <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.11" />
     <PackageReference Include="AutomaticGraphLayout.GraphViewerGDI" Version="1.1.11" />
     <PackageReference Include="AutomaticGraphLayout.WpfGraphControl" Version="1.1.11" />
+    <PackageReference Include="AvaloniaGraphControl" Version="0.4.0" />
   </ItemGroup>
 
 </Project>

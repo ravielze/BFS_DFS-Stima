@@ -1,20 +1,9 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using AvaloniaGraphControl;
+using Microsoft.Win32;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HanyaPenggemar
 {
@@ -53,14 +42,23 @@ namespace HanyaPenggemar
                 lines = System.IO.File.ReadAllLines(openFileDialog.FileName);
                 Paragraph paragraph = new Paragraph();
                 paragraph.Inlines.Add(System.IO.File.ReadAllText(openFileDialog.FileName));
-                FlowDocument document = new FlowDocument(paragraph);
-                Previewer.Document = document;
+                //FlowDocument document = new FlowDocument(paragraph);
+                //Previewer.Document = document;
+                Graph g = new Graph();
+                g.Edges.Add(new Edge("A", "B"));
+                g.Edges.Add(new Edge("A", "C"));
+                g.Edges.Add(new Edge("C", "D"));
             }
         }
 
         public string[] GetReadedFileLines()
         {
             return lines;
+        }
+
+        private void Minimize(object sender, MouseButtonEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
         }
     }
 }
