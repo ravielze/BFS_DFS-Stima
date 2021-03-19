@@ -1,4 +1,4 @@
-﻿using AvaloniaGraphControl;
+﻿using Microsoft.Msagl.Drawing;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -16,9 +16,15 @@ namespace HanyaPenggemar
         public MainWindow()
         {
             InitializeComponent();
+            Startup();
         }
 
-        public void Exit(object sender, RoutedEventArgs e)
+        private void Startup()
+        {
+            ChangeSecondTabVisibility(Visibility.Hidden);
+        }
+
+        private void Exit(object sender, RoutedEventArgs e)
         {
             App.Current.MainWindow.Close();
         }
@@ -27,6 +33,13 @@ namespace HanyaPenggemar
         {
             base.OnMouseLeftButtonDown(e);
             this.DragMove();
+        }
+
+        private void ChangeSecondTabVisibility(Visibility v)
+        {
+            graphControl.Visibility = v;
+            NextButton.Visibility = v;
+            ClearButton.Visibility = v;
         }
 
         private void OpenFile(object sender, RoutedEventArgs e)
@@ -42,13 +55,34 @@ namespace HanyaPenggemar
                 lines = System.IO.File.ReadAllLines(openFileDialog.FileName);
                 Paragraph paragraph = new Paragraph();
                 paragraph.Inlines.Add(System.IO.File.ReadAllText(openFileDialog.FileName));
-                //FlowDocument document = new FlowDocument(paragraph);
-                //Previewer.Document = document;
-                Graph g = new Graph();
-                g.Edges.Add(new Edge("A", "B"));
-                g.Edges.Add(new Edge("A", "C"));
-                g.Edges.Add(new Edge("C", "D"));
+                FlowDocument document = new FlowDocument(paragraph);
+                Previewer.Document = document;
+
+                ChangeSecondTabVisibility(Visibility.Visible);
+                graphControl.Graph = null;
+                graphControl.Graph = Draw();
             }
+        }
+
+        private Graph Draw()
+        {
+            if (this.lines == null) return null;
+            if (this.lines.Length < 1) return null;
+
+            Graph result = new Graph();
+            foreach (string each in lines)
+            {
+                string[] eachsplit = each.Split(" ", 2);
+                if (eachsplit.Length == 2)
+                {
+                    result.AddEdge(eachsplit[0], eachsplit[1]);
+                } else
+                {
+                    ChangeSecondTabVisibility(Visibility.Hidden);
+                    return null;
+                }
+            }
+            return result;
         }
 
         public string[] GetReadedFileLines()
@@ -59,6 +93,16 @@ namespace HanyaPenggemar
         private void Minimize(object sender, MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+        private void Clear(object sender, RoutedEventArgs e)
+        {
+            this.lines = null;
+            graphControl.Visibility = Visibility.Hidden;
+            NextButton.Visibility = Visibility.Hidden;
+            ClearButton.Visibility = Visibility.Hidden;
+            Paragraph paragraph = new Paragraph();
+            FlowDocument document = new FlowDocument(paragraph);
+            Previewer.Document = document;
         }
     }
 }
