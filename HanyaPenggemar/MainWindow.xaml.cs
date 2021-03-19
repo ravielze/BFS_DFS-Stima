@@ -1,7 +1,9 @@
 ﻿using Microsoft.Msagl.Drawing;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 
@@ -40,6 +42,13 @@ namespace HanyaPenggemar
             graphControl.Visibility = v;
             NextButton.Visibility = v;
             ClearButton.Visibility = v;
+            AlgorithmPicker.Visibility = v;
+        }
+
+        private void ClearFirstTab()
+        {
+            this.lines = null;
+            Previewer.Document = null;
         }
 
         private void OpenFile(object sender, RoutedEventArgs e)
@@ -58,9 +67,18 @@ namespace HanyaPenggemar
                 FlowDocument document = new FlowDocument(paragraph);
                 Previewer.Document = document;
 
-                ChangeSecondTabVisibility(Visibility.Visible);
+                AlgorithmPicker.SelectedIndex = -1;
                 graphControl.Graph = null;
                 graphControl.Graph = Draw();
+                if (graphControl.Graph == null)
+                {
+                    ClearFirstTab();
+                    ChangeSecondTabVisibility(Visibility.Hidden);
+                    MessageBox.Show("Format file tidak valid.", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
+                } else
+                {
+                    ChangeSecondTabVisibility(Visibility.Visible);
+                }
             }
         }
 
@@ -96,13 +114,28 @@ namespace HanyaPenggemar
         }
         private void Clear(object sender, RoutedEventArgs e)
         {
-            this.lines = null;
-            graphControl.Visibility = Visibility.Hidden;
-            NextButton.Visibility = Visibility.Hidden;
-            ClearButton.Visibility = Visibility.Hidden;
-            Paragraph paragraph = new Paragraph();
-            FlowDocument document = new FlowDocument(paragraph);
-            Previewer.Document = document;
+            ClearFirstTab();
+            AlgorithmPicker.SelectedIndex = -1;
+            ChangeSecondTabVisibility(Visibility.Hidden);
+        }
+
+        private void NextPage(object sender, RoutedEventArgs e)
+        {
+            if (AlgorithmPicker.SelectedIndex == -1)
+            {
+                MessageBox.Show("Mohon untuk memilih algoritma terlebih dahulu!", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            ComboBoxItem val = (ComboBoxItem) AlgorithmPicker.SelectedValue;
+            Debug.WriteLine(val.Content);
+            this.Visibility = Visibility.Hidden;
+            SecondWindow sw = new SecondWindow
+            {
+                Owner = this
+            };
+            sw.Top = this.Top;
+            sw.Left = this.Left;
+            sw.ShowDialog();
         }
     }
 }
