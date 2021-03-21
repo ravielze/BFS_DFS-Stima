@@ -103,11 +103,6 @@ namespace HanyaPenggemar
             return result;
         }
 
-        public string[] GetReadedFileLines()
-        {
-            return lines;
-        }
-
         private void Minimize(object sender, MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
@@ -126,10 +121,10 @@ namespace HanyaPenggemar
                 MessageBox.Show("Mohon untuk memilih algoritma terlebih dahulu!", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            ComboBoxItem val = (ComboBoxItem) AlgorithmPicker.SelectedValue;
-            Debug.WriteLine(val.Content);
+            //ComboBoxItem val = (ComboBoxItem) AlgorithmPicker.SelectedValue;
+            //Debug.WriteLine(val.Content);
             this.Visibility = Visibility.Hidden;
-            SecondWindow sw = new SecondWindow
+            SecondWindow sw = new SecondWindow(this.Draw(), this.AlgorithmPicker.SelectedIndex)
             {
                 Owner = this
             };
