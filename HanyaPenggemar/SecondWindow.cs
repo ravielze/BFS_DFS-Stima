@@ -29,5 +29,21 @@ namespace HanyaPenggemar
             this.Owner.Top = this.Top;
             this.Owner.Left = this.Left;
         }
+
+        private void MoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+            this.DragMove();
+        }
+
+        private void Exit(object sender, RoutedEventArgs e)
+        {
+            App.Current.MainWindow.Close();
+        }
+
+        private void Minimize(object sender, MouseButtonEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
     }
 }
