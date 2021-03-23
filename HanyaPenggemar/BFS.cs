@@ -9,7 +9,14 @@ namespace HanyaPenggemar
     {
         public int Compare(int x, int y)
         {
-            return y.CompareTo(x);
+            if (x == y)
+            {
+                return y;
+            }
+            else
+            {
+                return y.CompareTo(x);
+            }
         }
     }
 
@@ -75,17 +82,17 @@ namespace HanyaPenggemar
         {
             if (((i % 100 > 20) && (i % 10 == 1)) || ((i % 100 <= 20) && (i % 20 == 1)))
             {
-                return i + "st Degree";
+                return i + "st-degree connection";
             }
             else if (((i % 100 > 20) && (i % 10 == 2)) || ((i % 100 <= 20) && (i % 20 == 2)))
             {
-                return i + "nd Degree";
+                return i + "nd-degree connection";
             }
             else if (((i % 100 > 20) && (i % 10 == 3)) || ((i % 100 <= 20) && (i % 20 == 3)))
             {
-                return i + "rd Degree";
+                return i + "rd-degree connection";
             }
-            return i + "th Degree";
+            return i + "th-degree connection";
         }
 
         public string ExploreFriend(string source, string target)
@@ -93,7 +100,8 @@ namespace HanyaPenggemar
             // Kamus
             bool sudah;
             bool found = false;
-            string jalur;
+            string jalur = "";
+            string jalurNew;
             string hasil = "Explore Between " + source + " and " + target + " Not Found";
 
             // Menambahkan akun acuan pada queue BFS
@@ -126,7 +134,7 @@ namespace HanyaPenggemar
                         jalur += " → " + tersangka;
 
                         // Memindahkan jalur yang didapatkan pada hasil explore friend
-                        hasil = jalur;
+                        hasil = "Nama akun: " + source + " dan " + target + "\n";
 
                         // Menghentikan pencarian pertemanan akun yang sedang dilakukan pencarian
                         break;
@@ -153,10 +161,10 @@ namespace HanyaPenggemar
                         if (!sudah)
                         {
                             // Menambahkan jalur menuju tersangka
-                            jalur += " → " + tersangka;
+                            jalurNew = jalur + " → " + tersangka;
 
                             // Memasukkan data jalur pada queue untuk dicek pada waktu yang akan datang
-                            this.Antrian.Enqueue(jalur);
+                            this.Antrian.Enqueue(jalurNew);
 
                             // Memasukkan data tersangka pada pembacaan BFS
                             this.Cek.Add(tersangka);
@@ -169,10 +177,10 @@ namespace HanyaPenggemar
             if (found)
             {
                 // Menghitung banyaknya perpindahan akun yang dilakukan
-                int banyak = hasil.Split(" → ").Length - 2;
+                int banyak = jalur.Split(" → ").Length - 2;
 
                 // Mengubah fotmat penulisan hasil
-                hasil = hasil + ", " + ConvertIntToOrdinal(banyak);
+                hasil += ConvertIntToOrdinal(banyak) + "\n" + jalur;
             }
             // Menampilkan hasil explore
             return hasil;
@@ -226,7 +234,7 @@ namespace HanyaPenggemar
 
             if (this.Recommendation.Count > 0)
             {
-                Recommended = "";
+                Recommended = "Daftar rekomendasi teman untuk akun " + source + ":\n";
             }
             // Menampilkan rekomendasi pertemanan beserta hasil explore
             foreach (string rekomendasi in this.Recommendation)
@@ -247,7 +255,6 @@ namespace HanyaPenggemar
                         }
                     }
                 }
-
                 this.TotalMutual.Add(count, rekomendasi);
             }
 
@@ -273,18 +280,18 @@ namespace HanyaPenggemar
                 // Jika memiliki mutual friends
                 if (this.Mutual.Count != 0)
                 {
-                    Recommended += "Nama akun " + rekomendasi;
+                    Recommended += "Nama akun: " + rekomendasi;
                     // Menampilkan jumlah mutual friends
-                    Recommended += "\n" + this.Mutual.Count + " mutual friend(s): ";
+                    Recommended += "\n" + this.Mutual.Count + " mutual friend(s):\n";
 
                     // Menampilkan mutual friends
                     foreach (string nama in this.Mutual)
                     {
-                        Recommended += nama + " ";
+                        Recommended += nama + "\n";
                     }
 
                     // Memberikan space tampilan
-                    Recommended += "\n\n";
+                    Recommended += "\n";
                 }
 
                 // Jika tidak memiliki mutual friends
