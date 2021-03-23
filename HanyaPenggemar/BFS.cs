@@ -94,7 +94,7 @@ namespace HanyaPenggemar
             bool sudah;
             bool found = false;
             string jalur;
-            string hasil = " (Explore Between " + source + " and " + target + " Not Found)";
+            string hasil = "Explore Between " + source + " and " + target + " Not Found";
 
             // Menambahkan akun acuan pada queue BFS
             this.Antrian.Enqueue(source);
@@ -172,7 +172,7 @@ namespace HanyaPenggemar
                 int banyak = hasil.Split(" → ").Length - 2;
 
                 // Mengubah fotmat penulisan hasil
-                hasil = " (" + hasil + ", " + ConvertIntToOrdinal(banyak) + ")";
+                hasil = hasil + ", " + ConvertIntToOrdinal(banyak);
             }
             // Menampilkan hasil explore
             return hasil;
@@ -243,6 +243,28 @@ namespace HanyaPenggemar
                         if (temanRekomendasi == temanAcuan)
                         {
                             // Menambahkan mutual friends
+                            count += 1;
+                        }
+                    }
+                }
+
+                this.TotalMutual.Add(count, rekomendasi);
+            }
+
+            for (int i = 0; i < this.TotalMutual.Count; i++)
+            {
+                string rekomendasi = this.TotalMutual.Values[i];
+
+                // Melihat teman yang dimiliki oleh akun rekomendasi
+                foreach (string temanRekomendasi in this.Akun[rekomendasi].GetFriend())
+                {
+                    // Mencari mutual friends
+                    foreach (string temanAcuan in this.Akun[source].GetFriend())
+                    {
+                        // Menemukan mutual friends
+                        if (temanRekomendasi == temanAcuan)
+                        {
+                            // Menambahkan mutual friends
                             this.Mutual.Add(temanRekomendasi);
                         }
                     }
@@ -275,6 +297,8 @@ namespace HanyaPenggemar
                 // Membersihkan data set mutual friend
                 this.Mutual.Clear();
             }
+
+            this.TotalMutual.Clear();
             return Recommended;
         }
 
