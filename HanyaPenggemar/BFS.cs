@@ -32,7 +32,7 @@ namespace HanyaPenggemar
             this.Cek = new List<string>();
             this.Recommendation = new SortedSet<string>();
             this.Mutual = new SortedSet<string>();
-            this.Akun = new Dictionary<string, Account>(StringComparer.CurrentCulture);
+            this.Akun = new Dictionary<string, Account>(StringComparer.CurrentCultureIgnoreCase);
             this.LoadData();
         }
 
@@ -51,12 +51,29 @@ namespace HanyaPenggemar
                 }
                 if (!Akun.ContainsKey(y))
                 {
-                    Akun[x] = new Account();
+                    Akun[y] = new Account();
                     ListAkun.Add(y);
                 }
                 Akun[x].AddFriend(y);
                 Akun[y].AddFriend(x);
             }
+        }
+
+        private string ConvertIntToOrdinal(int i)
+        {
+            if (((i % 100 > 20) && (i % 10 == 1)) || ((i % 100 <= 20) && (i % 20 == 1)))
+            {
+                return i + "st Degree";
+            }
+            else if (((i % 100 > 20) && (i % 10 == 2)) || ((i % 100 <= 20) && (i % 20 == 2)))
+            {
+                return i + "nd Degree";
+            }
+            else if (((i % 100 > 20) && (i % 10 == 3)) || ((i % 100 <= 20) && (i % 20 == 3)))
+            {
+                return i + "rd Degree";
+            }
+            return i + "th Degree";
         }
 
         public string ExploreFriend(string source, string target, bool found, string hasil)
@@ -82,7 +99,9 @@ namespace HanyaPenggemar
                 var nama = jalur.Split(" → ");
 
                 // Mencari akunTujuan dari pertemanan akun yang sedang dilakukan pencarian
-                foreach (string tersangka in akun[nama[nama.Length - 1]].GetFriend())
+#pragma warning disable IDE0056 // Use index operator
+                foreach (string tersangka in Akun[nama[nama.Length - 1]].GetFriend())
+#pragma warning restore IDE0056 // Use index operator
                 {
                     // Tersangka merupakan akunTujuan
                     if (tersangka == target)
@@ -145,69 +164,13 @@ namespace HanyaPenggemar
             if (found)
             {
                 // Menghitung banyaknya perpindahan akun yang dilakukan
-                var banyak = hasil.Split(" → ");
+                int banyak = hasil.Split(" → ").Length - 2;
 
                 // Mengubah fotmat penulisan hasil
-                hasil = " (" + hasil + ", ";
-
-                if ((banyak.Length - 2) % 100 > 20)
-                {
-                    // Jika terdapat 1 (mod 10) kali perpindahan akun
-                    if ((banyak.Length - 2) % 10 == 1)
-                    {
-                        // Menambahkan keterangan Nst degree pada hasil
-                        hasil += (banyak.Length - 2) + "st Degree)";
-                    }
-                    // Jika terdapat 2 (mod 10) kali perpindahan akun
-                    else if ((banyak.Length - 2) % 10 == 2)
-                    {
-                        // Menambahkan keterangan Nnd degree pada hasil
-                        hasil += (banyak.Length - 2) + "nd Degree)";
-                    }
-                    // Jika terdapat 3 (mod 10) kali perpindahan akun
-                    else if ((banyak.Length - 2) % 10 == 3)
-                    {
-                        // Menambahkan keterangan Nrd degree pada hasil
-                        hasil += (banyak.Length - 2) + "rd Degree)";
-                    }
-                    // sisa
-                    else
-                    {
-                        // Menambahkan keterangan Nth degree pada hasil
-                        hasil += (banyak.Length - 2) + "th Degree)";
-                    }
-                }
-                else
-                {
-                    // Jika terdapat 1 (mod 20) kali perpindahan akun
-                    if ((banyak.Length - 2) % 20 == 1)
-                    {
-                        // Menambahkan keterangan Nst degree pada hasil
-                        hasil += (banyak.Length - 2) + "st Degree)";
-                    }
-                    // Jika terdapat 2 (mod 20) kali perpindahan akun
-                    else if ((banyak.Length - 2) % 20 == 2)
-                    {
-                        // Menambahkan keterangan Nnd degree pada hasil
-                        hasil += (banyak.Length - 2) + "nd Degree)";
-                    }
-                    // Jika terdapat 3 (mod 20) kali perpindahan akun
-                    else if ((banyak.Length - 2) % 20 == 3)
-                    {
-                        // Menambahkan keterangan Nrd degree pada hasil
-                        hasil += (banyak.Length - 2) + "rd Degree)";
-                    }
-                    // sisa
-                    else
-                    {
-                        // Menambahkan keterangan Nth degree pada hasil
-                        hasil += (banyak.Length - 2) + "th Degree)";
-                    }
-                }
+                hasil = " (" + hasil + ", " + ConvertIntToOrdinal(banyak) + ")";
             }
             // Menampilkan hasil explore
             return hasil;
-            }
         }
 
         public string RecommendedFriend(string source, string target)
@@ -217,20 +180,20 @@ namespace HanyaPenggemar
             bool found;
             string hasil;
             bool berteman;
-            string Recommended;
+            string Recommended = "";
 
             // Mencari account yang akan direkomendasikan
-            foreach (string friendAcuan in akun[source].GetFriend())
+            foreach (string friendAcuan in this.Akun[source].GetFriend())
             {
                 // Mencari teman rekomendasi dari teman yang dimiliki akun acuan
-                foreach (string kandidat in akun[friendAcuan].GetFriend())
+                foreach (string kandidat in Akun[friendAcuan].GetFriend())
                 {
                     // Inisiasi
                     lolos = true;
 
                     // Mengecek apakah akun yang direkomendasikan bukan
                     // akun yang dipilih atau teman dari akun yang dipilih
-                    foreach (string temanAcuan in akun[source].GetFriend())
+                    foreach (string temanAcuan in Akun[source].GetFriend())
                     {
                         if ((kandidat == source) || (kandidat == temanAcuan))
                         {
@@ -266,26 +229,24 @@ namespace HanyaPenggemar
             hasil = " (Explore Between " + source + " and " + target + " Not Found)";
 
             // Menampilkan rekomendasi pertemanan beserta hasil explore
-            Console.WriteLine("\nDaftar rekomendasi untuk akun " + source + " :");
             foreach (string rekomendasi in this.Recommendation)
             {
                 // Inisiasi
                 found = false;
 
-                // Menampilkan pada layar nama akun yang direkomendasikan
-                Console.Write("Nama akun: " + rekomendasi);                
+                // Menampilkan pada layar nama akun yang direkomendasikan    
                
                 // Akun yang akan direkomendasikan merupakan akunTujuan explore friends
                 if (rekomendasi == target)
                 {
-                    hasil = this.ExploreFriend(source, target, found, hasil)
+                hasil = this.ExploreFriend(source, target, found, hasil);
                 }
 
                 // Melihat teman yang dimiliki oleh akun rekomendasi
-                foreach (string temanRekomendasi in akun[rekomendasi].GetFriend())
+                foreach (string temanRekomendasi in Akun[rekomendasi].GetFriend())
                 {
                     // Mencari mutual friends
-                    foreach (string temanAcuan in akun[source].GetFriend())
+                    foreach (string temanAcuan in Akun[source].GetFriend())
                     {
                         // Menemukan mutual friends
                         if (temanRekomendasi == temanAcuan)
@@ -322,7 +283,7 @@ namespace HanyaPenggemar
                         berteman = false;
 
                         // Mengecek apakah akunRekomendasi adalah teman dari akun acuan
-                        foreach (string friend in akun[source].GetFriend())
+                        foreach (string friend in Akun[source].GetFriend())
                         {
                             // Akun rekomendasi berteman dengan akun acuan
                             if (friend == rekomendasi)
@@ -344,7 +305,7 @@ namespace HanyaPenggemar
                         {
                             // Menampilkan pada layar akun acuan tidak memiliki
                             // mutual friend dengan akun rekomendasi
-                            Recommended = source + " tidak memiliki mutual friend dengan " + rekomendasi + "\n\n");
+                            Recommended = source + " tidak memiliki mutual friend dengan " + rekomendasi + "\n\n";
                         }
                     }
 
@@ -353,7 +314,7 @@ namespace HanyaPenggemar
                     {
                         // Menampilkan keterangan pada layar
                         Recommended += source + " tidak terhubung dengan " + rekomendasi + "\n";
-                        Recommended += "Buatlah koneksi baru untuk menghubungkan mereka\n");
+                        Recommended += "Buatlah koneksi baru untuk menghubungkan mereka\n";
                     }
                 }
                 // Membersihkan data set mutual friend

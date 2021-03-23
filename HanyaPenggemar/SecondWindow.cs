@@ -41,6 +41,7 @@ namespace HanyaPenggemar
             foreach(Node n in this.G.Nodes)
             {
                 Accounts.Items.Add(n.LabelText);
+                ExploreFriendsAccount.Items.Add(n.LabelText);
             }
         }
 
@@ -70,6 +71,38 @@ namespace HanyaPenggemar
         private void Minimize(object sender, MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+
+        private void Process(object sender, RoutedEventArgs e)
+        {
+            if (Accounts.SelectedIndex == -1)
+            {
+                MessageBox.Show("Mohon untuk memilih account!", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            int algorithm = AlgorithmPicker.SelectedIndex;
+            string account = Accounts.SelectedValue.ToString();
+            string exploreaccount = "";
+            if (ExploreFriendsAccount.SelectedIndex == -1)
+            {
+                ExploreFriends.Text = "Anda belum mengisi dropdown di atas.";
+            } else
+            {
+                ExploreFriends.Text = "";
+                exploreaccount = ExploreFriendsAccount.SelectedValue.ToString();
+            }
+
+            FriendRecommendation.Text = account + "\n" + exploreaccount;
+            if (algorithm == 0)
+            {
+                //DFS
+            } else if (algorithm == 1)
+            {
+                BFS bfs = new BFS(this.G);
+                if (ExploreFriendsAccount.SelectedIndex == -1)
+                    //ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
+                    FriendRecommendation.Text = bfs.RecommendedFriend(account, "");
+            }
         }
     }
 }
