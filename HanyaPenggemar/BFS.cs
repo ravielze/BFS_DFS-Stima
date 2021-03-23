@@ -5,6 +5,14 @@ using System.Text;
 
 namespace HanyaPenggemar
 {
+    class DecendingComparer<TKey> : IComparer<int>
+    {
+        public int Compare(int x, int y)
+        {
+            return y.CompareTo(x);
+        }
+    }
+
     class BFS
     {
         // Set akun yang terdaftar
@@ -22,6 +30,9 @@ namespace HanyaPenggemar
         // Set mutual friend yang ditemukan
         public SortedSet<string> Mutual { get; set; }
 
+        // Set Sorting banyaknya mutual
+        public SortedList<int, string> TotalMutual { get; set; }
+
         // Dictionary untuk membaca string sebagai nama sebuah account
         public Dictionary<string, Account> Akun { get; set; }
         public BFS(Graph graph)
@@ -33,6 +44,7 @@ namespace HanyaPenggemar
             this.Recommendation = new SortedSet<string>();
             this.Mutual = new SortedSet<string>();
             this.Akun = new Dictionary<string, Account>(StringComparer.CurrentCultureIgnoreCase);
+            this.TotalMutual = new SortedList<int, string>(new DecendingComparer<int>());
             this.LoadData();
         }
 
@@ -40,7 +52,7 @@ namespace HanyaPenggemar
 
         private void LoadData()
         {
-            foreach(var each in Graph.Edges)
+            foreach (var each in Graph.Edges)
             {
                 var x = each.SourceNode.LabelText;
                 var y = each.TargetNode.LabelText;
@@ -76,11 +88,14 @@ namespace HanyaPenggemar
             return i + "th Degree";
         }
 
-        public string ExploreFriend(string source, string target, bool found, string hasil)
-        {       
+        public string ExploreFriend(string source, string target)
+        {
             // Kamus
             bool sudah;
-            
+            bool found = false;
+            string jalur;
+            string hasil = " (Explore Between " + source + " and " + target + " Not Found)";
+
             // Menambahkan akun acuan pada queue BFS
             this.Antrian.Enqueue(source);
 
@@ -92,16 +107,14 @@ namespace HanyaPenggemar
             while ((!found) && (this.Antrian.Count > 0))
             {
                 // Mengambil antrian untuk dilakukan pencarian explore
-                string jalur = this.Antrian.Dequeue();
+                jalur = this.Antrian.Dequeue();
 
                 // Split jalur untuk mendapatkan nama akun
                 // yang akan dilakukan pencarian explore
                 var nama = jalur.Split(" → ");
 
                 // Mencari akunTujuan dari pertemanan akun yang sedang dilakukan pencarian
-#pragma warning disable IDE0056 // Use index operator
-                foreach (string tersangka in Akun[nama[nama.Length - 1]].GetFriend())
-#pragma warning restore IDE0056 // Use index operator
+                foreach (string tersangka in this.Akun[nama[nama.Length - 1]].GetFriend())
                 {
                     // Tersangka merupakan akunTujuan
                     if (tersangka == target)
@@ -114,12 +127,6 @@ namespace HanyaPenggemar
 
                         // Memindahkan jalur yang didapatkan pada hasil explore friend
                         hasil = jalur;
-
-                        // Memasukkan data jalur ke dalam queue BFS
-                        this.Antrian.Enqueue(jalur);
-
-                        // Memasukkan akun tersangka pada set pembacaan BFS
-                        this.Cek.Add(tersangka);
 
                         // Menghentikan pencarian pertemanan akun yang sedang dilakukan pencarian
                         break;
@@ -145,8 +152,6 @@ namespace HanyaPenggemar
                         // Tersangka belum terdaftar pada set cek pembacaan BFS
                         if (!sudah)
                         {
-                            // Console.WriteLine("Akan memasukkan " + tersangka + " ke dalam queue");
-
                             // Menambahkan jalur menuju tersangka
                             jalur += " → " + tersangka;
 
@@ -173,27 +178,24 @@ namespace HanyaPenggemar
             return hasil;
         }
 
-        public string RecommendedFriend(string source, string target)
+        public string RecommendedFriend(string source)
         {
             // Kamus
             bool lolos;
-            bool found;
-            string hasil;
-            bool berteman;
-            string Recommended = "";
+            string Recommended = "No Recommended Friend Found";
 
             // Mencari account yang akan direkomendasikan
             foreach (string friendAcuan in this.Akun[source].GetFriend())
             {
                 // Mencari teman rekomendasi dari teman yang dimiliki akun acuan
-                foreach (string kandidat in Akun[friendAcuan].GetFriend())
+                foreach (string kandidat in this.Akun[friendAcuan].GetFriend())
                 {
                     // Inisiasi
                     lolos = true;
 
                     // Mengecek apakah akun yang direkomendasikan bukan
                     // akun yang dipilih atau teman dari akun yang dipilih
-                    foreach (string temanAcuan in Akun[source].GetFriend())
+                    foreach (string temanAcuan in this.Akun[source].GetFriend())
                     {
                         if ((kandidat == source) || (kandidat == temanAcuan))
                         {
@@ -222,31 +224,20 @@ namespace HanyaPenggemar
                 }
             }
 
-            // Menambahkan akun explore ke dalam set rekomendasi
-            this.Recommendation.Add(target);
-
-            // Inisiasi
-            hasil = " (Explore Between " + source + " and " + target + " Not Found)";
-
+            if (this.Recommendation.Count > 0)
+            {
+                Recommended = "";
+            }
             // Menampilkan rekomendasi pertemanan beserta hasil explore
             foreach (string rekomendasi in this.Recommendation)
             {
-                // Inisiasi
-                found = false;
-
-                // Menampilkan pada layar nama akun yang direkomendasikan    
-               
-                // Akun yang akan direkomendasikan merupakan akunTujuan explore friends
-                if (rekomendasi == target)
-                {
-                hasil = this.ExploreFriend(source, target, found, hasil);
-                }
+                int count = 0;
 
                 // Melihat teman yang dimiliki oleh akun rekomendasi
-                foreach (string temanRekomendasi in Akun[rekomendasi].GetFriend())
+                foreach (string temanRekomendasi in this.Akun[rekomendasi].GetFriend())
                 {
                     // Mencari mutual friends
-                    foreach (string temanAcuan in Akun[source].GetFriend())
+                    foreach (string temanAcuan in this.Akun[source].GetFriend())
                     {
                         // Menemukan mutual friends
                         if (temanRekomendasi == temanAcuan)
@@ -260,8 +251,9 @@ namespace HanyaPenggemar
                 // Jika memiliki mutual friends
                 if (this.Mutual.Count != 0)
                 {
+                    Recommended += "Nama akun " + rekomendasi;
                     // Menampilkan jumlah mutual friends
-                    Recommended = "\n" + this.Mutual.Count + " mutual friend(s): ";
+                    Recommended += "\n" + this.Mutual.Count + " mutual friend(s): ";
 
                     // Menampilkan mutual friends
                     foreach (string nama in this.Mutual)
@@ -276,46 +268,9 @@ namespace HanyaPenggemar
                 // Jika tidak memiliki mutual friends
                 else
                 {
-                    // Jika jalur explore ditemukan
-                    if (found)
-                    {
-                        // Insiasi
-                        berteman = false;
-
-                        // Mengecek apakah akunRekomendasi adalah teman dari akun acuan
-                        foreach (string friend in Akun[source].GetFriend())
-                        {
-                            // Akun rekomendasi berteman dengan akun acuan
-                            if (friend == rekomendasi)
-                            {
-                                berteman = true;
-                            }
-                        }
-
-                        // Jika akun rekomendasi dengan akun acuan berteman
-                        if (berteman)
-                        {
-                            // Menampilkan pada layar bahwa akun rekomnedasi
-                            // dengan akun acuan sudah berteman
-                            Recommended += source + " berteman dengan " + rekomendasi + "\n\n";
-                        }
-
-                        // Jika akun rekomendasi dengan akun acuan tidak berteman
-                        else
-                        {
-                            // Menampilkan pada layar akun acuan tidak memiliki
-                            // mutual friend dengan akun rekomendasi
-                            Recommended = source + " tidak memiliki mutual friend dengan " + rekomendasi + "\n\n";
-                        }
-                    }
-
-                    // Jalur explore tidak ditemukan
-                    else
-                    {
-                        // Menampilkan keterangan pada layar
-                        Recommended += source + " tidak terhubung dengan " + rekomendasi + "\n";
-                        Recommended += "Buatlah koneksi baru untuk menghubungkan mereka\n";
-                    }
+                    // Menampilkan keterangan pada layar
+                    Recommended += source + " tidak terhubung dengan " + rekomendasi + "\n";
+                    Recommended += "Buatlah koneksi baru untuk menghubungkan mereka\n";
                 }
                 // Membersihkan data set mutual friend
                 this.Mutual.Clear();

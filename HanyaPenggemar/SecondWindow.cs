@@ -99,9 +99,9 @@ namespace HanyaPenggemar
             } else if (algorithm == 1)
             {
                 BFS bfs = new BFS(this.G);
-                if (ExploreFriendsAccount.SelectedIndex == -1)
-                    //ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
-                    FriendRecommendation.Text = bfs.RecommendedFriend(account, "");
+                if (ExploreFriendsAccount.SelectedIndex != -1)
+                    ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
+                    FriendRecommendation.Text = bfs.RecommendedFriend(account);
             }
         }
     }
