@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DFS
 {
-    public class Graph
+    public class FriendshipGraph
     {
         //Representasi graf
         LinkedList<string> [] graphLinkedList;
@@ -12,13 +12,13 @@ namespace DFS
         Stack<string> stackDFS = new Stack<string>();
 
 		//Default Constructor graf
-		public Graph()
+		public FriendshipGraph()
 		{
 			graphLinkedList = new LinkedList<string>[10];
 		}
 
-        //Inisialisasi graf
-        public Graph(int N)
+        //User-defined constructor graf
+        public FriendshipGraph(int N)
         {
             graphLinkedList = new LinkedList<string>[N];
         }
@@ -363,7 +363,7 @@ namespace DFS
             string hasilExploreFriend; //penyimpan hasil penggunaan fitur explore friend
             Console.Write("Banyak pertemanan : ");
             N = Convert.ToInt32(Console.ReadLine());
-            Graph graph = new Graph(2 * N);
+            FriendshipGraph graph = new FriendshipGraph(2 * N);
             //Dictionary untuk assign setiap nama akun dengan suatu int
             Dictionary<string, int> accountAssignedInt = new Dictionary<string, int>();
             //Value int yang di assign pada dictionary

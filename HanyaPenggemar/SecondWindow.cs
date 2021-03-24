@@ -92,16 +92,29 @@ namespace HanyaPenggemar
                 exploreaccount = ExploreFriendsAccount.SelectedValue.ToString();
             }
 
+            BFS bfs = new BFS(this.G);
+            DFS dfs = new DFS(this.G);
             FriendRecommendation.Text = account + "\n" + exploreaccount;
+            //Menampilkan friend recommendation
+            FriendRecommendation.Text = bfs.RecommendedFriend(account);
             if (algorithm == 0)
             {
-                //DFS
+                //Menampilkan explore friend dari account ke exploreaccount
+                //Menggunakan algoritma dfs
+
+                // DFS dfs = new DFS(this.G);
+                if (ExploreFriendsAccount.SelectedIndex != -1)
+                    ExploreFriends.Text = dfs.ExploreFriend(account, exploreaccount);
+                    //FriendRecommendation.Text = bfs.RecommendedFriend(account);
             } else if (algorithm == 1)
             {
-                BFS bfs = new BFS(this.G);
+                //Menampilkan explore friend dari account ke exploreaccount
+                //Menggunakan algoritma bfs
+
+                // BFS bfs = new BFS(this.G);
                 if (ExploreFriendsAccount.SelectedIndex != -1)
                     ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
-                    FriendRecommendation.Text = bfs.RecommendedFriend(account);
+                    //FriendRecommendation.Text = bfs.RecommendedFriend(account);
             }
         }
     }

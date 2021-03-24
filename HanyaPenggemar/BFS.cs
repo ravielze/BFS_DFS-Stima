@@ -102,7 +102,7 @@ namespace HanyaPenggemar
             bool found = false;
             string jalur = "";
             string jalurNew;
-            string hasil = "Explore Between " + source + " and " + target + " Not Found";
+            string hasil = "Nama akun: " + source + " dan " + target + "\n" + "Tidak ada jalur koneksi yang tersedia\n" + "Anda harus memulai koneksi baru itu sendiri.\n";
 
             // Menambahkan akun acuan pada queue BFS
             this.Antrian.Enqueue(source);
@@ -190,7 +190,7 @@ namespace HanyaPenggemar
         {
             // Kamus
             bool lolos;
-            string Recommended = "No Recommended Friend Found";
+            string Recommended = "Tidak ada rekomendasi teman";
 
             // Mencari account yang akan direkomendasikan
             foreach (string friendAcuan in this.Akun[source].GetFriend())
