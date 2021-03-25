@@ -208,6 +208,7 @@ namespace HanyaPenggemar
                             && edg.TargetNode.LabelText.Equals(pathData[i])))
                         {
                             edg.Attr.Color = Microsoft.Msagl.Drawing.Color.Blue;
+                            edg.Attr.LineWidth += 1.65;
                         }
                     }
                 }
