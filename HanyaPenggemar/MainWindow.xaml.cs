@@ -87,7 +87,10 @@ namespace HanyaPenggemar
             if (this.lines == null) return null;
             if (this.lines.Length < 1) return null;
 
-            Graph result = new Graph();
+            Graph result = new Graph
+            {
+                Directed = false
+            };
             bool isFirst = true;
             foreach (string each in lines)
             {

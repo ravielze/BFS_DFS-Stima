@@ -122,7 +122,7 @@ namespace HanyaPenggemar
                 var nama = jalur.Split(" → ");
 
                 // Mencari akunTujuan dari pertemanan akun yang sedang dilakukan pencarian
-                foreach (string tersangka in this.Akun[nama[nama.Length - 1]].GetFriend())
+                foreach (string tersangka in this.Akun[nama[^1]].GetFriend())
                 {
                     // Tersangka merupakan akunTujuan
                     if (tersangka == target)

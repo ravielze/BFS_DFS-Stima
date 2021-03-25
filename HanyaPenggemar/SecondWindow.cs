@@ -22,6 +22,7 @@ namespace HanyaPenggemar
     {
         private Graph g = null;
         private int selectedAlgorithm = -1;
+        private int lastSelectedAccount = -1;
 
         private Graph G { get => g; set => g = value; }
         private int SelectedAlgorithm { get => selectedAlgorithm; set => selectedAlgorithm = value; }
@@ -37,11 +38,11 @@ namespace HanyaPenggemar
         private void Startup()
         {
             GraphControl.Graph = this.G;
+            ClearButton.Visibility = Visibility.Hidden;
             AlgorithmPicker.SelectedIndex = this.SelectedAlgorithm;
             foreach(Node n in this.G.Nodes)
             {
                 Accounts.Items.Add(n.LabelText);
-                ExploreFriendsAccount.Items.Add(n.LabelText);
             }
         }
 
@@ -67,31 +68,155 @@ namespace HanyaPenggemar
         {
             this.Close();
         }
+        private void Clear(object sender, RoutedEventArgs e)
+        {
+            ResetAllTabState();
+            Accounts.SelectedIndex = -1;
+        }
 
         private void Minimize(object sender, MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
         }
 
-        private void Process(object sender, RoutedEventArgs e)
+        private void ResetAllTabState()
         {
-            if (Accounts.SelectedIndex == -1)
+            GraphControl.Graph = this.G;
+            ClearButton.Visibility = Visibility.Hidden;
+            ExploreFriends.Text = null;
+            FriendRecommendation.Text = null;
+            ExploreFriendsAccount.SelectedIndex = -1;
+        }
+
+        private void ExploreAccountSelect(object sender, EventArgs e)
+        {
+            if (ExploreFriendsAccount.IsDropDownOpen == false)
             {
-                MessageBox.Show("Mohon untuk memilih account!", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                this.Process();
+            } else
+            {
+                if (Accounts.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Anda harus mengisi dropdown Account terlebih dahulu!", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (ExploreFriendsAccount.Items.Count == 0)
+                {
+                    MessageBox.Show("Semua akun sudah saling berteman.", "Hanya Penggemar", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return;
+                }
             }
+        }
+
+        private void AccountSelect(object sender, EventArgs e)
+        {
+            if (Accounts.IsDropDownOpen == false)
+            {
+                if (lastSelectedAccount != Accounts.SelectedIndex)
+                {
+                    ResetAllTabState();
+                    lastSelectedAccount = Accounts.SelectedIndex;
+                    if (Accounts.SelectedIndex != -1)
+                    {
+                        ExploreFriendsAccount.Items.Clear();
+                        string account = Accounts.SelectedValue.ToString();
+                        List<String> friends = new List<string>();
+                        foreach (Edge edg in this.G.Edges)
+                        {
+                            if (edg.SourceNode.LabelText.Equals(account) && !edg.TargetNode.LabelText.Equals(account))
+                            {
+                                friends.Add(edg.TargetNode.LabelText);
+                            } else if (edg.TargetNode.LabelText.Equals(account) && !edg.SourceNode.LabelText.Equals(account))
+                            {
+                                friends.Add(edg.SourceNode.LabelText);
+                            }
+                        }
+                        foreach (Node n in this.G.Nodes)
+                        {
+                            if (!n.LabelText.Equals(account) && !friends.Contains(n.LabelText))
+                            {
+                                ExploreFriendsAccount.Items.Add(n.LabelText);
+                            }
+                        }
+                    }
+                    this.Process();
+                }
+            }
+        }
+
+        private Graph CopyGraph(Graph source)
+        {
+            Graph result = new Graph();
+            foreach(Edge edg in source.Edges)
+            {
+                Edge redg = result.AddEdge(edg.SourceNode.LabelText, edg.TargetNode.LabelText);
+                redg.Attr.ArrowheadAtTarget = ArrowStyle.None;
+                redg.Attr.ArrowheadAtSource = ArrowStyle.None;
+            }
+            return result;
+        }
+
+        private void ColorizeFriendRecommendation(Graph source, string center, string data)
+        {
+            var arrData = data.Split("\n");
+            Node centerNode = source.FindNode(center);
+            centerNode.Attr.FillColor = Microsoft.Msagl.Drawing.Color.Yellow;
+            centerNode.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Circle;
+            List<String> friends = new List<string>();
+            foreach (Edge edg in source.Edges)
+            {
+                if (edg.SourceNode.LabelText.Equals(center) && !edg.TargetNode.LabelText.Equals(center))
+                {
+                    friends.Add(edg.TargetNode.LabelText);
+                }
+                else if (edg.TargetNode.LabelText.Equals(center) && !edg.SourceNode.LabelText.Equals(center))
+                {
+                    friends.Add(edg.SourceNode.LabelText);
+                }
+            }
+            foreach(string friendData in friends)
+            {
+                Node friendNode = source.FindNode(friendData);
+                friendNode.Attr.FillColor = Microsoft.Msagl.Drawing.Color.DarkOrange;
+                friendNode.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Circle;
+            }
+            foreach (string eachData in arrData)
+            {
+                if (eachData.StartsWith("Nama akun: "))
+                {
+                    string friendRecommended = eachData.Replace("Nama akun: ", "");
+                    Node friendRecommendedNode = source.FindNode(friendRecommended);
+                    friendRecommendedNode.Attr.FillColor = Microsoft.Msagl.Drawing.Color.OrangeRed;
+                    friendRecommendedNode.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Circle;
+                }
+            }
+        }
+
+        private void Process()
+        {
             int algorithm = AlgorithmPicker.SelectedIndex;
             string account = Accounts.SelectedValue.ToString();
-            string exploreaccount = "";
+            string exploreaccount;
+            ClearButton.Visibility = Visibility.Visible;
 
             BFS bfs = new BFS(this.G);
             DFS dfs = new DFS(this.G);
+            Graph viewGraph = CopyGraph(this.G);
             // Menampilkan friend recommendation, methodnya nitip di class BFS heheh
             // mager mindahin ke class baru
-            FriendRecommendation.Text = bfs.RecommendedFriend(account);
+            string friendRecommend = bfs.RecommendedFriend(account);
+            FriendRecommendation.Text = friendRecommend;
+            ColorizeFriendRecommendation(viewGraph, account, friendRecommend);
+
             if (ExploreFriendsAccount.SelectedIndex == -1)
             {
-                ExploreFriends.Text = "Anda belum mengisi dropdown di atas.";
+                if (ExploreFriendsAccount.Items.Count == 0 && Accounts.SelectedIndex != -1)
+                {
+                    ExploreFriends.Text = "Semua akun sudah saling berteman.";
+                } else
+                {
+                    ExploreFriends.Text = "Dropdown di atas belum terisi.";
+                }
             } else
             {
                 ExploreFriends.Text = "";
@@ -110,6 +235,9 @@ namespace HanyaPenggemar
                         ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
                 }
             }
+
+            GraphControl.Graph = null;
+            GraphControl.Graph = viewGraph;
         }
     }
 }
