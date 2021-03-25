@@ -83,6 +83,12 @@ namespace HanyaPenggemar
             int algorithm = AlgorithmPicker.SelectedIndex;
             string account = Accounts.SelectedValue.ToString();
             string exploreaccount = "";
+
+            BFS bfs = new BFS(this.G);
+            DFS dfs = new DFS(this.G);
+            // Menampilkan friend recommendation, methodnya nitip di class BFS heheh
+            // mager mindahin ke class baru
+            FriendRecommendation.Text = bfs.RecommendedFriend(account);
             if (ExploreFriendsAccount.SelectedIndex == -1)
             {
                 ExploreFriends.Text = "Anda belum mengisi dropdown di atas.";
@@ -90,31 +96,19 @@ namespace HanyaPenggemar
             {
                 ExploreFriends.Text = "";
                 exploreaccount = ExploreFriendsAccount.SelectedValue.ToString();
-            }
-
-            BFS bfs = new BFS(this.G);
-            DFS dfs = new DFS(this.G);
-            FriendRecommendation.Text = account + "\n" + exploreaccount;
-            //Menampilkan friend recommendation
-            FriendRecommendation.Text = bfs.RecommendedFriend(account);
-            if (algorithm == 0)
-            {
-                //Menampilkan explore friend dari account ke exploreaccount
-                //Menggunakan algoritma dfs
-
-                // DFS dfs = new DFS(this.G);
-                if (ExploreFriendsAccount.SelectedIndex != -1)
-                    ExploreFriends.Text = dfs.ExploreFriend(account, exploreaccount);
-                    //FriendRecommendation.Text = bfs.RecommendedFriend(account);
-            } else if (algorithm == 1)
-            {
-                //Menampilkan explore friend dari account ke exploreaccount
-                //Menggunakan algoritma bfs
-
-                // BFS bfs = new BFS(this.G);
-                if (ExploreFriendsAccount.SelectedIndex != -1)
-                    ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
-                    //FriendRecommendation.Text = bfs.RecommendedFriend(account);
+                if (algorithm == 0)
+                {
+                    //Menampilkan explore friend dari account ke exploreaccount
+                    //Menggunakan algoritma dfs
+                    if (ExploreFriendsAccount.SelectedIndex != -1)
+                        ExploreFriends.Text = dfs.ExploreFriend(account, exploreaccount);
+                } else if (algorithm == 1)
+                {
+                    //Menampilkan explore friend dari account ke exploreaccount
+                    //Menggunakan algoritma bfs
+                    if (ExploreFriendsAccount.SelectedIndex != -1)
+                        ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
+                }
             }
         }
     }

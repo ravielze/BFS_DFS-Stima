@@ -88,17 +88,21 @@ namespace HanyaPenggemar
             if (this.lines.Length < 1) return null;
 
             Graph result = new Graph();
+            bool isFirst = true;
             foreach (string each in lines)
             {
                 string[] eachsplit = each.Split(" ", 2);
                 if (eachsplit.Length == 2)
                 {
-                    result.AddEdge(eachsplit[0], eachsplit[1]);
-                } else
+                    var edg = result.AddEdge(eachsplit[0], eachsplit[1]);
+                    edg.Attr.ArrowheadAtTarget = ArrowStyle.None;
+                    edg.Attr.ArrowheadAtSource = ArrowStyle.None;
+                } else if (!isFirst)
                 {
                     ChangeSecondTabVisibility(Visibility.Hidden);
                     return null;
                 }
+                isFirst = false;
             }
             return result;
         }

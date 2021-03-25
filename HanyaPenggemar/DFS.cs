@@ -1,7 +1,5 @@
 using Microsoft.Msagl.Drawing;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HanyaPenggemar
 {
@@ -21,22 +19,11 @@ namespace HanyaPenggemar
             this.Graph = graph;
             this.stackDFS = new Stack<string>();
             this.accountAssignedInt = new Dictionary<string, int>();
-            this.friendshipGraph = new FriendshipGraph(CountNode());
+            this.friendshipGraph = new FriendshipGraph(graph.NodeCount);
             this.LoadData();
         }
 
         public Graph Graph { get; set; }
-        
-        //Menghitung jumlah node dalam graph
-        private int CountNode ()
-        {
-            int count = 0;
-            foreach (var node in Graph.Nodes)
-            {
-                count++;
-            }
-            return count;
-        }
 
         private void LoadData()
         {
@@ -83,23 +70,21 @@ namespace HanyaPenggemar
 
         //Fungsi yang mengembalikan true jika semua akun telah visited
         //Mengembalikan false jika ada akun yang belum visited
-        public bool allVisited (bool[] visited, Dictionary<string, int> accountAssignedInt)
+        private bool allVisited (bool[] visited)
         {
-            for (int i = 0; i < accountAssignedInt.Count; i ++)
-			{
-				if (!visited[i] == true)
-				{
-					return false;
-				}
-			}
-			return true;
+            foreach(bool x in visited){
+                if (x == false){
+                    return false;
+                }
+            }
+            return true;
         }
 
         //Fungsi yang mengembalikan true jika
         //semua friend dari suatu akun telah visited
         //Mengembalikan false jika ada friend dari
         //suatu akun yang belum visited
-        public bool allFriendsVisited (string source, bool [] visited, Dictionary<string, int> accountAssignedInt)
+        private bool allFriendsVisited (string source, bool [] visited, Dictionary<string, int> accountAssignedInt)
         {
             foreach (var friend in friendshipGraph.graphLinkedList[accountAssignedInt[source]])
             {
@@ -112,7 +97,7 @@ namespace HanyaPenggemar
         }
 
         //Fungsi DFS untuk mencari jalur dari akun source ke akun target
-        public Stack<string> DFSforExploreFriends (string source, string target, bool [] visited, Dictionary<string, int> accountAssignedInt)
+        private Stack<string> DFSforExploreFriends (string source, string target, bool [] visited, Dictionary<string, int> accountAssignedInt)
         {
             //Basis bila target telah ditemukan
             if (source == target)
@@ -123,7 +108,7 @@ namespace HanyaPenggemar
             //Basis bila semua node telah visited
             //Mengembalikan stack kosong (untuk menandakan
             //akun source dan target tidak dapat terhubung)
-            else if(allVisited(visited, accountAssignedInt) == true)
+            else if (allVisited(visited) == true)
             {
                 Stack<string> emptyStack = new Stack<string>();
                 return emptyStack;
