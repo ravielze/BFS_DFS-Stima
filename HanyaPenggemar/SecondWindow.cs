@@ -192,6 +192,28 @@ namespace HanyaPenggemar
             }
         }
 
+        private void ColorizeExploreFriend(Graph source, string data)
+        {
+            var arrData = data.Split("\n");
+            if (data.Contains("degree connection")){
+                var path = arrData[2];
+                var pathData = path.Split(" → ");
+                for(int i = 0; i < pathData.Length-1; i++)
+                {
+                    foreach(Edge edg in source.Edges)
+                    {
+                        if ((edg.SourceNode.LabelText.Equals(pathData[i])
+                            && edg.TargetNode.LabelText.Equals(pathData[i+1]))
+                            || (edg.SourceNode.LabelText.Equals(pathData[i + 1])
+                            && edg.TargetNode.LabelText.Equals(pathData[i])))
+                        {
+                            edg.Attr.Color = Microsoft.Msagl.Drawing.Color.Blue;
+                        }
+                    }
+                }
+            }
+        }
+
         private void Process()
         {
             int algorithm = AlgorithmPicker.SelectedIndex;
@@ -225,14 +247,17 @@ namespace HanyaPenggemar
                 {
                     //Menampilkan explore friend dari account ke exploreaccount
                     //Menggunakan algoritma dfs
-                    if (ExploreFriendsAccount.SelectedIndex != -1)
-                        ExploreFriends.Text = dfs.ExploreFriend(account, exploreaccount);
+                    string exploreFriend = dfs.ExploreFriend(account, exploreaccount);
+                    ExploreFriends.Text = exploreFriend;
+                    ColorizeExploreFriend(viewGraph, exploreFriend);
+
                 } else if (algorithm == 1)
                 {
                     //Menampilkan explore friend dari account ke exploreaccount
                     //Menggunakan algoritma bfs
-                    if (ExploreFriendsAccount.SelectedIndex != -1)
-                        ExploreFriends.Text = bfs.ExploreFriend(account, exploreaccount);
+                    string exploreFriend = bfs.ExploreFriend(account, exploreaccount);
+                    ExploreFriends.Text = exploreFriend;
+                    ColorizeExploreFriend(viewGraph, exploreFriend);
                 }
             }
 
