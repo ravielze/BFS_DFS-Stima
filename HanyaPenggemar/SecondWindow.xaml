@@ -114,7 +114,8 @@
                           VerticalAlignment="Center"
                           Width="160"
                           Margin="20,0,0,0"
-                          FontFamily="Fonts/#Dosis">
+                          FontFamily="Fonts/#Dosis"
+                          DropDownClosed="AlgoPickSelect">
                     <ComboBoxItem Content="DFS"/>
                     <ComboBoxItem Content="BFS"/>
                 </ComboBox>

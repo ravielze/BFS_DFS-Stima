@@ -79,8 +79,17 @@ namespace HanyaPenggemar
             this.WindowState = WindowState.Minimized;
         }
 
+        private void AlgoPickSelect(object sender, EventArgs e)
+        {
+            if (Accounts.SelectedIndex != -1 && ExploreFriendsAccount.SelectedIndex != -1)
+            {
+                this.Process();
+            }
+        }
+
         private void ResetAllTabState()
         {
+            GraphControl.Graph = null;
             GraphControl.Graph = this.G;
             ClearButton.Visibility = Visibility.Hidden;
             ExploreFriends.Text = null;
